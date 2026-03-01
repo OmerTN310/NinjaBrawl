@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NinjaCoin 忍 TN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+JP:wght@300;400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<style>
+
+/* ═══════════════════════════════════════════
+   SAMURAI DESIGN SYSTEM
+   Palette: deep black · blood red · aged gold
+═══════════════════════════════════════════ */
+
+:root {
+  --void:     #080608;
+  --ground:   #0f0c10;
+  --surface:  #161218;
+  --raised:   #1e1820;
+  --rim:      #2c2430;
+  --blood:    #c0001a;
+  --blood2:   #8b0013;
+  --ember:    #e85c00;
+  --gold:     #b8922a;
+  --gold-lt:  #d4aa4a;
+  --parchment:#d4c9a8;
+  --mist:     #7a6e80;
+  --smoke:    #4a4050;
+
+  --ff-title: 'Cinzel', serif;
+  --ff-jp:    'Noto Serif JP', serif;
+  --ff-body:  'Noto Sans Hebrew', sans-serif;
+
+  --shadow-red: 0 0 20px rgba(192,0,26,0.4);
+  --shadow-gold: 0 0 16px rgba(184,146,42,0.3);
+}
+
+/* ── RESET ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--void);
+  color: var(--parchment);
+  font-family: var(--ff-body);
+  direction: rtl;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── ATMOSPHERIC BACKGROUND ── */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* subtle ink wash gradients */
+.bg-layer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,   rgba(192,0,26,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 80% at 100% 100%, rgba(184,146,42,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 60%,    rgba(192,0,26,0.03) 0%, transparent 50%);
+}
+
+/* horizontal brush-stroke lines */
+.bg-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0px,
+    transparent 59px,
+    rgba(255,255,255,0.018) 59px,
+    rgba(255,255,255,0.018) 60px
+  );
+}
+
+/* GIANT KANJI */
+.kanji-bg {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.kanji-bg span {
+  font-family: var(--ff-jp);
+  font-size: 70vmin;
+  font-weight: 700;
+  color: rgba(192,0,26,0.04);
+  user-select: none;
+  line-height: 1;
+  animation: kanji-breathe 12s ease-in-out infinite;
+}
+@keyframes kanji-breathe {
+  0%,100% { transform: scale(1) rotate(-2deg); opacity: 1; }
+  50%      { transform: scale(1.04) rotate(-2deg); opacity: 0.7; }
+}
+
+/* vertical kanji strips on sides */
+.kanji-strip {
+  position: fixed;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--ff-jp);
+  font-size: 1rem;
+  color: rgba(184,146,42,0.12);
+  pointer-events: none;
+  z-index: 0;
+  letter-spacing: 8px;
+  padding-top: 80px;
+  user-select: none;
+}
+.kanji-strip.left  { left: 12px; }
+.kanji-strip.right { right: 12px; direction: ltr; }
+
+/* ── HEADER ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(8,6,8,0.96);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--rim);
+}
+
+/* top red accent bar */
+header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blood2), var(--blood) 30%, var(--gold) 70%, transparent);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.logo-seal {
+  width: 44px;
+  height: 44px;
+  background: var(--blood);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: var(--shadow-red);
+  flex-shrink: 0;
+  animation: seal-pulse 4s ease-in-out infinite;
+}
+@keyframes seal-pulse {
+  0%,100% { box-shadow: var(--shadow-red); }
+  50%      { box-shadow: 0 0 32px rgba(192,0,26,0.6); }
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.logo-main {
+  font-family: var(--ff-title);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--parchment);
+  letter-spacing: 4px;
+}
+.logo-main em {
+  color: var(--blood);
+  font-style: normal;
+}
+.logo-sub {
+  font-family: var(--ff-jp);
+  font-size: 0.65rem;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-top: 3px;
+}
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+#walletAddress {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--mist);
+  letter-spacing: 1px;
+}
+
+#mainQRCode {
+  border: 1px solid var(--rim);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.header-right { display: flex; align-items: center; gap: 14px; }
+
+#customConnectBtn {
+  font-family: var(--ff-title);
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  color: var(--blood);
+  background: transparent;
+  border: 1px solid var(--blood2);
+  padding: 10px 26px;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+#customConnectBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--blood);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.25s ease;
+  z-index: -1;
+}
+#customConnectBtn:hover::before { transform: scaleY(1); }
+#customConnectBtn:hover { color: #fff; border-color: var(--blood); box-shadow: var(--shadow-red); }
+#customConnectBtn:disabled { pointer-events: none; opacity: 0.5; }
+
+/* ── MAIN ── */
+main {
+  position: relative;
+  z-index: 10;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 44px 28px 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+/* ── STAT STRIP ── */
+.stats-bar {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--rim);
+  border: 1px solid var(--rim);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stat-card {
+  background: var(--surface);
+  padding: 18px 22px;
+  position: relative;
+  transition: background 0.2s;
+}
+.stat-card:hover { background: var(--raised); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--blood2), transparent);
+}
+
+.stat-label {
+  font-family: var(--ff-title);
+  font-size: 0.58rem;
+  color: var(--smoke);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-family: monospace;
+  font-size: 1.05rem;
+  color: var(--gold-lt);
+  word-break: break-all;
+}
+
+/* ── CARD BASE ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: 2px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+  border-color: rgba(192,0,26,0.25);
+}
+
+/* corner ornament — top right */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 32px 32px 0 0;
+  border-color: var(--void) transparent transparent transparent;
+}
+
+/* red left border accent */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 10%; left: 0; bottom: 10%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--blood2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card:hover::after { opacity: 1; }
+
+.card-title {
+  font-family: var(--ff-title);
+  font-size: 0.68rem;
+  color: var(--gold);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* decorative dash after title */
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--rim), transparent);
+}
+
+/* ── MINE CARD (FULL WIDTH) ── */
+.mine-card {
+  grid-column: 1 / -1;
+  border-color: rgba(192,0,26,0.3);
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 44px;
+  align-items: center;
+}
+.mine-card::before { display: none; }
+/* top crimson bar */
+.mine-card .card-title {
+  grid-column: 1 / -1;
+  margin-bottom: 16px;
+}
+
+.mine-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.mine-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── COUNTDOWN RING ── */
+/* r=90 → circumference ≈ 565 */
+.ring-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+.ring-wrap svg { transform: rotate(-90deg); display: block; }
+
+.ring-track {
+  fill: none;
+  stroke: var(--rim);
+  stroke-width: 5;
+}
+.ring-fill {
+  fill: none;
+  stroke: var(--blood);
+  stroke-width: 5;
+  stroke-linecap: butt;
+  stroke-dasharray: 565;
+  stroke-dashoffset: 565;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 5px rgba(192,0,26,0.7));
+}
+
+/* decorative tick marks */
+.ring-ticks {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(184,146,42,0.15) 0deg 1deg,  transparent 1deg 36deg,
+    rgba(184,146,42,0.15) 36deg 37deg, transparent 37deg 72deg,
+    rgba(184,146,42,0.15) 72deg 73deg, transparent 73deg 108deg,
+    rgba(184,146,42,0.15) 108deg 109deg, transparent 109deg 144deg,
+    rgba(184,146,42,0.15) 144deg 145deg, transparent 145deg 180deg,
+    rgba(184,146,42,0.15) 180deg 181deg, transparent 181deg 216deg,
+    rgba(184,146,42,0.15) 216deg 217deg, transparent 217deg 252deg,
+    rgba(184,146,42,0.15) 252deg 253deg, transparent 253deg 288deg,
+    rgba(184,146,42,0.15) 288deg 289deg, transparent 289deg 324deg,
+    rgba(184,146,42,0.15) 324deg 325deg, transparent 325deg 360deg
+  );
+  pointer-events: none;
+}
+
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  gap: 6px;
+}
+.ring-time {
+  font-family: var(--ff-title);
+  font-size: 1.5rem;
+  color: var(--parchment);
+  line-height: 1;
+  letter-spacing: 2px;
+}
+.ring-label {
+  font-family: var(--ff-jp);
+  font-size: 0.62rem;
+  color: var(--mist);
+  letter-spacing: 3px;
+}
+
+/* Progress bar */
+.prog-bar {
+  width: 200px;
+  height: 3px;
+  background: var(--rim);
+  border-radius: 0;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blood2), var(--blood), var(--ember));
+  transition: width 1s linear;
+}
+
+/* Next mine datetime */
+.next-mine-box {
+  width: 200px;
+  background: rgba(184,146,42,0.06);
+  border: 1px solid rgba(184,146,42,0.2);
+  border-radius: 1px;
+  padding: 10px 14px;
+  text-align: center;
+}
+.next-mine-label {
+  display: block;
+  font-family: var(--ff-title);
+  font-size: 0.55rem;
+  color: var(--smoke);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.next-mine-datetime {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--gold-lt);
+  letter-spacing: 1px;
+}
+
+/* Mine info block */
+.mine-info {
+  font-family: var(--ff-jp);
+  font-size: 0.8rem;
+  color: var(--mist);
+  line-height: 2;
+  padding: 14px 18px;
+  border-right: 2px solid var(--blood2);
+  background: rgba(192,0,26,0.04);
+}
+.mine-info strong { color: var(--parchment); font-weight: 700; }
+
+#minerStatus {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--smoke);
+  min-height: 20px;
+  letter-spacing: 1px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: var(--ff-title);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 1px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  display: block;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-crimson {
+  background: var(--blood);
+  color: #fff;
+}
+.btn-crimson::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--blood2), var(--blood));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn-crimson:hover:not(:disabled)::before { opacity: 1; }
+.btn-crimson:hover:not(:disabled) {
+  box-shadow: var(--shadow-red);
+  transform: translateY(-1px);
+}
+.btn-crimson:disabled { opacity: 0.25; cursor: not-allowed; transform: none !important; }
+
+@keyframes samurai-pulse {
+  0%,100% { box-shadow: var(--shadow-red); }
+  50%      { box-shadow: 0 0 40px rgba(192,0,26,0.6), 0 0 80px rgba(192,0,26,0.2); }
+}
+.btn-ready { animation: samurai-pulse 2s infinite; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--mist);
+  border: 1px solid var(--rim);
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--mist);
+  color: var(--parchment);
+}
+.btn-ghost:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.btn-gold {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(184,146,42,0.35);
+}
+.btn-gold:hover:not(:disabled) {
+  background: rgba(184,146,42,0.08);
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+.btn-gold:disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* ── INPUTS ── */
+.input-group { margin-bottom: 13px; }
+
+.input-group label {
+  font-family: var(--ff-title);
+  font-size: 0.58rem;
+  color: var(--smoke);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  background: var(--ground);
+  border: 1px solid var(--rim);
+  border-radius: 1px;
+  color: var(--parchment);
+  font-family: monospace;
+  font-size: 0.9rem;
+  padding: 12px 14px;
+  direction: ltr;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+.input-group input::placeholder { color: var(--smoke); }
+.input-group input:focus,
+.input-group select:focus {
+  border-color: var(--blood2);
+  box-shadow: 0 0 0 2px rgba(192,0,26,0.1);
+}
+.input-group select option { background: var(--ground); }
+
+/* ── BALANCE DISPLAY ── */
+.balance-hero {
+  text-align: center;
+  padding: 10px 0 22px;
+}
+.balance-num {
+  font-family: var(--ff-title);
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--parchment);
+  line-height: 1;
+}
+.balance-unit {
+  font-family: var(--ff-title);
+  font-size: 1rem;
+  color: var(--gold);
+  margin-right: 6px;
+}
+
+/* ── APY TAGS ── */
+.apy-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.apy-tag {
+  font-family: var(--ff-title);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--smoke);
+  border: 1px solid var(--rim);
+  padding: 5px 11px;
+}
+.apy-tag strong { color: var(--gold); }
+
+/* ── DATA ROWS ── */
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(44,36,48,0.7);
+}
+.data-row:last-of-type { border-bottom: none; margin-bottom: 12px; }
+.data-key {
+  font-family: var(--ff-title);
+  font-size: 0.6rem;
+  color: var(--smoke);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.data-val {
+  font-family: monospace;
+  font-size: 0.92rem;
+  color: var(--gold-lt);
+}
+
+/* ── STATUS MESSAGES ── */
+.status-msg {
+  font-family: monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  min-height: 18px;
+  margin-top: 10px;
+  color: var(--smoke);
+}
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--blood2), var(--rim) 40%, transparent);
+  margin: 20px 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  main { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: repeat(2,1fr); }
+  .mine-card { grid-column: 1; grid-template-columns: 1fr; justify-items: center; }
+  .mine-card .mine-right { width: 100%; }
+  header { padding: 0 20px; }
+  .header-center { display: none; }
+  #mainQRCode { display: none; }
+  .kanji-strip { display: none; }
+}
+
+@media (max-width: 480px) {
+  .logo-main { font-size: 1.1rem; letter-spacing: 2px; }
+  .stats-bar { grid-template-columns: repeat(2,1fr); }
+}
+
+/* ── FADE-IN ANIMATION ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stats-bar  { animation: fade-up 0.5s ease both; }
+.mine-card  { animation: fade-up 0.6s 0.1s ease both; }
+.card:nth-of-type(3) { animation: fade-up 0.6s 0.2s ease both; }
+.card:nth-of-type(4) { animation: fade-up 0.6s 0.3s ease both; }
+.card:nth-of-type(5) { animation: fade-up 0.6s 0.4s ease both; }
+
+</style>
+</head>
+<body>
+
+<!-- Atmospheric layers -->
+<div class="bg-layer"></div>
+<div class="kanji-bg"><span>忍</span></div>
+<div class="kanji-strip left">刀・金・火・水・木・忍</div>
+<div class="kanji-strip right">忍・木・水・火・金・刀</div>
+
+<!-- ══════════════════════════ HEADER ══════════════════════════ -->
+<header>
+  <div class="logo">
+    <div class="logo-seal">🥷</div>
+    <div class="logo-text">
+      <div class="logo-main">NINJA<em>COIN</em></div>
+      <div class="logo-sub">BASE NETWORK · TN</div>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <div id="walletAddress">לא מחובר</div>
+    <div id="mainQRCode"></div>
+  </div>
+
+  <div class="header-right">
+    <button id="customConnectBtn">⛩ CONNECT</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════ MAIN ══════════════════════════ -->
+<main>
+
+  <!-- STATS STRIP -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">היצע כולל</div>
+      <div class="stat-value" id="totalSupplyDisplay">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">בלוקים נכרו</div>
+      <div class="stat-value" id="blocksMinedDisplay">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">קושי</div>
+      <div class="stat-value" id="difficultyDisplay">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">יתרה שלי</div>
+      <div class="stat-value" id="tokenBalance">—</div>
+    </div>
+  </div>
+
+  <!-- MINE CARD -->
+  <div class="card mine-card">
+    <div class="card-title">⛏ כרייה — PROOF OF WORK</div>
+
+    <!-- LEFT: ring + timer -->
+    <div class="mine-left">
+      <div class="ring-wrap">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="90"/>
+          <circle class="ring-fill"  cx="100" cy="100" r="90" id="ringProgress"/>
+        </svg>
+        <div class="ring-ticks"></div>
+        <div class="ring-center">
+          <div class="ring-time"  id="miningTimerDisplay">—</div>
+          <div class="ring-label" id="miningTimerSub">חבר ארנק</div>
+        </div>
+      </div>
+
+      <div class="prog-bar">
+        <div class="prog-fill" id="progressFill" style="width:0%"></div>
+      </div>
+
+      <div class="next-mine-box" id="nextMineBox" style="display:none">
+        <span class="next-mine-label">כרייה הבאה ב</span>
+        <span class="next-mine-datetime" id="nextMineDatetime">—</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: info + button -->
+    <div class="mine-right">
+      <div class="mine-info">
+        כרייה זמינה פעם אחת כל <strong>10 ימים</strong>.<br>
+        פתור חידת PoW בדפדפן וקבל <strong>50 TN</strong> לארנק.
+      </div>
+      <p id="minerStatus"></p>
+      <button class="btn btn-crimson" id="mineButton" disabled>⛏ כרה עכשיו</button>
+    </div>
+  </div>
+
+  <!-- WALLET CARD -->
+  <div class="card">
+    <div class="card-title">◈ הארנק שלי</div>
+
+    <div class="balance-hero">
+      <div class="balance-num">
+        <span class="balance-unit">TN</span><span id="tokenBalance2">0</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>כתובת נמען</label>
+      <input id="sendAddress" type="text" placeholder="0x..." autocomplete="off"/>
+    </div>
+    <div class="input-group">
+      <label>כמות TN לשליחה</label>
+      <input id="sendAmount" type="number" placeholder="0.0" min="0" step="any"/>
+    </div>
+    <button class="btn btn-ghost" id="sendButton">→ שלח TN</button>
+    <p class="status-msg" id="sendStatus"></p>
+  </div>
+
+  <!-- STAKING CARD -->
+  <div class="card">
+    <div class="card-title">⬡ דוג׳ו — STAKING</div>
+
+    <div class="apy-strip">
+      <div class="apy-tag">30 יום — <strong>10%</strong></div>
+      <div class="apy-tag">90 יום — <strong>18%</strong></div>
+      <div class="apy-tag">365 יום — <strong>35%</strong></div>
+    </div>
+
+    <div class="data-row">
+      <span class="data-key">רווחים שנצברו</span>
+      <span class="data-val" id="earnedRewardsDisplay">0.000000 TN</span>
+    </div>
+    <div class="data-row">
+      <span class="data-key">מופקד כרגע</span>
+      <span class="data-val"><span id="stakedBalanceDisplay">0</span> TN</span>
+    </div>
+
+    <div class="input-group" style="margin-top:16px">
+      <label>כמות TN להפקדה</label>
+      <input id="stakeAmount" type="number" placeholder="0.0" min="0" step="any"/>
+    </div>
+    <div class="input-group">
+      <label>תקופת נעילה</label>
+      <select id="lockDuration">
+        <option value="30">30 ימים — 10% APY</option>
+        <option value="90">90 ימים — 18% APY</option>
+        <option value="365">365 ימים — 35% APY</option>
+      </select>
+    </div>
+    <button class="btn btn-crimson" id="stakeButton">⬡ הפקד</button>
+    <button class="btn btn-gold"    id="unstakeButton">◎ משוך קרן + רווח</button>
+    <p class="status-msg" id="stakingStatus"></p>
+  </div>
+
+  <!-- BURN CARD -->
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-title">▲ השמדת מטבעות — BURN</div>
+    <p style="font-family:var(--ff-jp);font-size:0.8rem;color:var(--mist);line-height:2;margin-bottom:20px;padding-right:14px;border-right:2px solid var(--blood2)">
+      שרוף TN לצמיתות — מקטין את ההיצע הכולל ויוצר נדירות אמיתית
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:end">
+      <div class="input-group" style="margin:0">
+        <label>כמות TN לשריפה</label>
+        <input id="burnAmount" type="number" placeholder="0.0" min="0" step="any"/>
+      </div>
+      <button class="btn btn-crimson" id="burnButton" style="margin:0">🔥 שרוף</button>
+    </div>
+    <p class="status-msg" id="burnStatus"></p>
+  </div>
+
+</main>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────
+const NINJA_CONTRACT_ADDR = "0x51cD66dbbd4d32a49ee6eB9a7278231a3fd40987";
+
+const ABI = [
+  {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"nonce","type":"uint256"}],"name":"mine","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"lockDurationDays","type":"uint256"}],"name":"stake","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"withdrawStake","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"calculateReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakes","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"startTime","type":"uint256"},{"internalType":"uint256","name":"lockDuration","type":"uint256"},{"internalType":"uint256","name":"apy","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"difficulty","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"lastBlockHash","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"lastMiningTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"miningCooldown","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"blocksMined","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+];
+
+// ─── STATE ───────────────────────────────────────────────────────
+let provider, signer, ninjaContract;
+let miningInterval = null, earnedInterval = null, isMining = false;
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function setStatus(id, msg, isErr) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerText = msg;
+  el.style.color = isErr ? '#c0001a' : '#7a6e80';
+}
+
+function generateQRCode(addr) {
+  const el = document.getElementById('mainQRCode');
+  if (!el) return;
+  el.innerHTML = '';
+  new QRCode(el, { text: addr, width: 60, height: 60, colorDark:'#c0001a', colorLight:'#0f0c10' });
+}
+
+// ─── CONNECT ─────────────────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) return alert('אנא התקן MetaMask!');
+  const btn = document.getElementById('customConnectBtn');
+  btn.disabled = true; btn.innerText = '...';
+
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    signer = provider.getSigner();
+    ninjaContract = new ethers.Contract(NINJA_CONTRACT_ADDR, ABI, signer);
+
+    const addr = await signer.getAddress();
+    document.getElementById('walletAddress').innerText = addr.slice(0,6) + '···' + addr.slice(-4);
+
+    btn.innerText = '⛩ מחובר ✓';
+    btn.style.background = '#8b0013';
+    btn.style.color = '#fff';
+
+    generateQRCode(addr);
+    await updateUI();
+    await startMiningTimer();
+
+    if (earnedInterval) clearInterval(earnedInterval);
+    earnedInterval = setInterval(updateEarned, 7000);
+
+    window.ethereum.on('accountsChanged', () => location.reload());
+    window.ethereum.on('chainChanged', () => location.reload());
+  } catch (e) {
+    btn.disabled = false; btn.innerText = '⛩ CONNECT';
+    console.error(e);
+  }
+}
+
+// ─── UPDATE EARNED ────────────────────────────────────────────────
+async function updateEarned() {
+  if (!ninjaContract || !signer) return;
+  try {
+    const earned = await ninjaContract.calculateReward(await signer.getAddress());
+    document.getElementById('earnedRewardsDisplay').innerText =
+      Number(ethers.utils.formatEther(earned)).toFixed(6) + ' TN';
+  } catch(e) {}
+}
+
+// ─── UPDATE UI ────────────────────────────────────────────────────
+async function updateUI() {
+  if (!ninjaContract || !signer) return;
+  try {
+    const addr = await signer.getAddress();
+
+    const bal = await ninjaContract.balanceOf(addr);
+    const balStr = Math.floor(Number(ethers.utils.formatEther(bal))).toLocaleString();
+    document.getElementById('tokenBalance').innerText  = balStr;
+    document.getElementById('tokenBalance2').innerText = balStr;
+
+    const supply = await ninjaContract.totalSupply();
+    document.getElementById('totalSupplyDisplay').innerText =
+      Math.floor(Number(ethers.utils.formatEther(supply))).toLocaleString() + ' TN';
+
+    const blocks = await ninjaContract.blocksMined();
+    document.getElementById('blocksMinedDisplay').innerText = blocks.toString();
+
+    const diff = await ninjaContract.difficulty();
+    document.getElementById('difficultyDisplay').innerText =
+      ethers.BigNumber.from(diff).toHexString().slice(0,8) + '...';
+
+    const st = await ninjaContract.stakes(addr);
+    document.getElementById('stakedBalanceDisplay').innerText =
+      Number(ethers.utils.formatEther(st.amount)).toLocaleString();
+
+    await updateEarned();
+  } catch(e) { console.error(e); }
+}
+
+// ─── MINING TIMER ─────────────────────────────────────────────────
+async function startMiningTimer() {
+  if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
+  try {
+    const lastTime  = await ninjaContract.lastMiningTime();
+    const cooldown  = await ninjaContract.miningCooldown();
+    const totalSecs = cooldown.toNumber();
+    const unlockAt  = lastTime.toNumber() + totalSecs;
+
+    // Show exact datetime
+    const nextBox = document.getElementById('nextMineBox');
+    const nextDt  = document.getElementById('nextMineDatetime');
+    if (nextBox && nextDt) {
+      const d = new Date(unlockAt * 1000);
+      nextDt.innerText = d.toLocaleString('he-IL', {
+        weekday:'short', day:'2-digit', month:'2-digit',
+        year:'numeric', hour:'2-digit', minute:'2-digit'
+      });
+      nextBox.style.display = 'block';
+    }
+
+    const ring     = document.getElementById('ringProgress');
+    const progress = document.getElementById('progressFill');
+    // r=90 → circumference = 2π×90 ≈ 565
+    const CIRC = 565;
+
+    const tick = () => {
+      const now       = Math.floor(Date.now() / 1000);
+      const remaining = unlockAt - now;
+      const btn       = document.getElementById('mineButton');
+      const timeEl    = document.getElementById('miningTimerDisplay');
+      const subEl     = document.getElementById('miningTimerSub');
+
+      if (remaining <= 0) {
+        if (!isMining) { btn.disabled = false; btn.classList.add('btn-ready'); }
+        timeEl.innerText = 'READY';
+        subEl.innerText  = '刀 זמן לכרות';
+        ring.style.strokeDashoffset = '0';
+        progress.style.width = '100%';
+        if (nextBox) nextBox.style.display = 'none';
+      } else {
+        btn.disabled = true; btn.classList.remove('btn-ready');
+
+        const d = Math.floor(remaining / 86400);
+        const h = Math.floor((remaining % 86400) / 3600);
+        const m = Math.floor((remaining % 3600) / 60);
+        const s = remaining % 60;
+
+        if      (d > 0) { timeEl.innerText = d+'d '+h+'h'; subEl.innerText = m+'m '+s+'s נותרו'; }
+        else if (h > 0) { timeEl.innerText = h+'h '+m+'m'; subEl.innerText = s+'s נותרו'; }
+        else            { timeEl.innerText = m+':'+String(s).padStart(2,'0'); subEl.innerText = 'נותרות דקות'; }
+
+        const elapsed = totalSecs - remaining;
+        const pct = Math.min(elapsed / totalSecs, 1);
+        ring.style.strokeDashoffset = (CIRC * (1 - pct)).toString();
+        progress.style.width = (pct * 100) + '%';
+      }
+    };
+
+    miningInterval = setInterval(tick, 1000);
+    tick();
+  } catch(e) { console.error(e); }
+}
+
+// ─── EVENTS ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+
+  document.getElementById('customConnectBtn').onclick = connectWallet;
+
+  // MINE
+  document.getElementById('mineButton').onclick = async () => {
+    if (isMining) return;
+    isMining = true;
+    const btn = document.getElementById('mineButton');
+    btn.disabled = true; btn.classList.remove('btn-ready');
+    try {
+      setStatus('minerStatus', '⚙ מחפש nonce...');
+      const addr     = await signer.getAddress();
+      const lastHash = await ninjaContract.lastBlockHash();
+      const diff     = await ninjaContract.difficulty();
+      let nonce = 0;
+      while (true) {
+        const h = ethers.utils.solidityKeccak256(['address','bytes32','uint256'],[addr,lastHash,nonce]);
+        if (ethers.BigNumber.from(h).lt(diff)) break;
+        nonce++;
+        if (nonce % 10000 === 0) {
+          setStatus('minerStatus', '⚙ nonce: ' + nonce.toLocaleString());
+          await new Promise(r => setTimeout(r, 0));
+        }
+      }
+      setStatus('minerStatus', '⚡ שולח לרשת...');
+      const tx = await ninjaContract.mine(nonce);
+      await tx.wait();
+      setStatus('minerStatus', '✓ בלוק נכרה! קיבלת 50 TN');
+      await updateUI();
+      await startMiningTimer();
+    } catch(e) {
+      setStatus('minerStatus', e.code === 4001 ? '✕ בוטל' : '✕ נכשל — נסה שוב', true);
+      console.error(e);
+    } finally { isMining = false; }
+  };
+
+  // STAKE
+  document.getElementById('stakeButton').onclick = async () => {
+    const amt      = document.getElementById('stakeAmount').value.trim();
+    const duration = parseInt(document.getElementById('lockDuration').value);
+    if (!amt || parseFloat(amt) <= 0) return alert('הכנס כמות תקינה');
+    if (!ninjaContract) return alert('חבר ארנק תחילה');
+    const btn = document.getElementById('stakeButton');
+    btn.disabled = true;
+    try {
+      const pAmt = ethers.utils.parseEther(amt);
+      const addr = await signer.getAddress();
+      const allowance = await ninjaContract.allowance(addr, NINJA_CONTRACT_ADDR);
+      if (allowance.lt(pAmt)) {
+        setStatus('stakingStatus', '⚙ מאשר... (1/2)');
+        const tx = await ninjaContract.approve(NINJA_CONTRACT_ADDR, pAmt);
+        await tx.wait();
+      }
+      setStatus('stakingStatus', '⚙ מפקיד... (2/2)');
+      const tx = await ninjaContract.stake(pAmt, duration);
+      await tx.wait();
+      setStatus('stakingStatus', '✓ הופקד בהצלחה!');
+      document.getElementById('stakeAmount').value = '';
+      await updateUI();
+    } catch(e) {
+      setStatus('stakingStatus', e.code === 4001 ? '✕ בוטל' : '✕ ' + (e.reason||'שגיאה').slice(0,60), true);
+    } finally { btn.disabled = false; }
+  };
+
+  // UNSTAKE
+  document.getElementById('unstakeButton').onclick = async () => {
+    if (!ninjaContract) return alert('חבר ארנק תחילה');
+    const btn = document.getElementById('unstakeButton');
+    btn.disabled = true;
+    try {
+      setStatus('stakingStatus', '⚙ מושך...');
+      const tx = await ninjaContract.withdrawStake();
+      await tx.wait();
+      setStatus('stakingStatus', '✓ נמשך בהצלחה!');
+      await updateUI();
+    } catch(e) {
+      const msg = (e.reason||e.message||'').toLowerCase();
+      setStatus('stakingStatus',
+        e.code === 4001 ? '✕ בוטל' :
+        msg.includes('locked') ? '✕ עדיין נעול — המתן לסיום הזמן' : '✕ נכשל', true);
+    } finally { btn.disabled = false; }
+  };
+
+  // BURN
+  document.getElementById('burnButton').onclick = async () => {
+    const amt = document.getElementById('burnAmount').value.trim();
+    if (!amt || parseFloat(amt) <= 0) return alert('הכנס כמות');
+    if (!ninjaContract) return alert('חבר ארנק תחילה');
+    const btn = document.getElementById('burnButton');
+    btn.disabled = true;
+    try {
+      setStatus('burnStatus', '🔥 שורף...');
+      const tx = await ninjaContract.burn(ethers.utils.parseEther(amt));
+      await tx.wait();
+      setStatus('burnStatus', '✓ נשרף לתמיד!');
+      document.getElementById('burnAmount').value = '';
+      await updateUI();
+    } catch(e) {
+      setStatus('burnStatus', e.code === 4001 ? '✕ בוטל' : '✕ שגיאה', true);
+    } finally { btn.disabled = false; }
+  };
+
+  // SEND
+  document.getElementById('sendButton').onclick = async () => {
+    const to  = document.getElementById('sendAddress').value.trim();
+    const amt = document.getElementById('sendAmount').value.trim();
+    if (!to || !amt) return alert('מלא כתובת וכמות');
+    if (!ethers.utils.isAddress(to)) return alert('כתובת לא תקינה');
+    if (!ninjaContract) return alert('חבר ארנק תחילה');
+    const btn = document.getElementById('sendButton');
+    btn.disabled = true;
+    try {
+      setStatus('sendStatus', '⚙ שולח...');
+      const tx = await ninjaContract.transfer(to, ethers.utils.parseEther(amt));
+      await tx.wait();
+      setStatus('sendStatus', '✓ נשלח בהצלחה!');
+      document.getElementById('sendAddress').value = '';
+      document.getElementById('sendAmount').value  = '';
+      await updateUI();
+    } catch(e) {
+      setStatus('sendStatus', e.code === 4001 ? '✕ בוטל' : '✕ שליחה נכשלה', true);
+    } finally { btn.disabled = false; }
+  };
+
+});
+</script>
+</body>
+</html>

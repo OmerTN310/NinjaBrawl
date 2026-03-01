@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Ninja Brawl</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <!-- ═══ SPLASH SCREEN ═══ -->
+  <div id="splashScreen">
+    <div class="splash-bg-glow"></div>
+    <div class="splash-logo">🥷</div>
+    <div class="splash-title">NINJA BRAWL</div>
+    <div class="splash-sub">POWERED BY NINJACOIN</div>
+    <div class="splash-load-section">
+      <div class="splash-bar">
+        <div class="splash-fill" id="splashFill"></div>
+      </div>
+      <div class="splash-percent" id="splashPercent">0%</div>
+      <div class="splash-status" id="splashStatus"></div>
+    </div>
+    <div class="splash-tips" id="splashTips"></div>
+  </div>
+
+  <!-- ═══ MAIN MENU ═══ -->
+  <div id="menuScreen" class="screen hidden">
+
+    <!-- Background particles canvas -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Logo -->
+    <div class="menu-ninja">🥷</div>
+    <div class="menu-logo">NINJA BRAWL</div>
+    <div class="menu-sub">POWERED BY NINJACOIN</div>
+
+    <!-- Auth Panel -->
+    <div id="authPanel">
+      <!-- Sign-in box (shown when not logged in) -->
+      <div id="authSigninBox">
+        <button id="googleSignInBtn" class="btn btn-google">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" class="google-icon">
+          <span data-i18n="sign_in_google">SIGN IN WITH GOOGLE</span>
+        </button>
+        <button id="emailToggleBtn" class="btn btn-email-toggle">
+          <span data-i18n="sign_in_email">SIGN IN WITH EMAIL</span>
+        </button>
+        <div id="emailFormBox" class="email-form hidden">
+          <input type="email" id="authEmail" class="auth-input" data-i18n-ph="email_placeholder" placeholder="Email">
+          <input type="password" id="authPassword" class="auth-input" data-i18n-ph="password_placeholder" placeholder="Password">
+          <div class="email-form-buttons">
+            <button id="emailSubmitBtn" class="btn btn-sm" data-i18n="login">LOGIN</button>
+            <button id="emailRegisterBtn" class="btn btn-sm" data-i18n="register">REGISTER</button>
+          </div>
+        </div>
+      </div>
+      <!-- User info (shown when logged in) -->
+      <div id="authUserInfo" class="auth-user-info hidden">
+        <span id="authUserName" class="auth-user-name">Ninja</span>
+        <button id="authSignOutBtn" class="btn btn-sm btn-signout" data-i18n="sign_out">SIGN OUT</button>
+      </div>
+    </div>
+
+    <!-- Wallet / TN Panel -->
+    <div id="walletPanel">
+      <div class="wallet-info" id="walletInfo">
+        <div class="wallet-addr" id="walletAddress" data-i18n="wallet_not_connected">Wallet not connected</div>
+        <div class="wallet-bal" id="walletBalance">0 TN</div>
+      </div>
+      <button id="connectBtn" class="btn btn-sm btn-wallet-connect">🔗 <span data-i18n="connect_wallet">CONNECT WALLET</span></button>
+    </div>
+
+    <!-- Main Buttons -->
+    <div class="menu-buttons">
+      <button class="btn btn-primary" onclick="window.location.href='game.html'">
+        ⚔️ <span data-i18n="play">PLAY</span>
+      </button>
+      <button class="btn btn-primary" onclick="window.location.href='game.html?mode=pvp'">
+        🌐 <span data-i18n="play_online">PLAY ONLINE</span>
+      </button>
+      <button class="btn" id="charBtn">
+        👤 <span data-i18n="characters">CHARACTERS</span>
+      </button>
+      <button class="btn" id="profileBtn">
+        🥷 <span data-i18n="profile">PROFILE</span>
+      </button>
+      <button class="btn" onclick="window.location.href='leaderboard.html'">
+        🏆 <span data-i18n="leaderboard">LEADERBOARD</span>
+      </button>
+    </div>
+
+    <!-- Weekly Leaderboard Preview -->
+    <div class="lb-preview">
+      <div class="lb-preview-title">🏆 <span data-i18n="top_ninjas">THIS WEEK'S TOP NINJAS</span></div>
+      <div id="lbPreview"></div>
+      <div class="week-timer" id="weekTimer"></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PROFILE MODAL ═══ -->
+  <div id="profileBackdrop" class="profile-backdrop hidden">
+    <div class="profile-modal">
+
+      <button class="profile-close" id="profileCloseBtn">&times;</button>
+
+      <!-- Avatar -->
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profileAvatar">🥷</div>
+        <div class="avatar-picker hidden" id="avatarPicker"></div>
+      </div>
+
+      <!-- Name -->
+      <div class="profile-name-wrap">
+        <div class="profile-name-label" data-i18n="player_name">PLAYER NAME</div>
+        <input class="profile-name-input" id="profileNameInput"
+               type="text" maxlength="20" data-i18n-ph="player_name_placeholder" placeholder="NinjaPlayer">
+      </div>
+
+      <!-- Wallet -->
+      <div class="profile-wallet">
+        <span class="profile-wallet-addr" id="profileWalletAddr" data-i18n="not_connected">Not connected</span>
+        <span class="profile-wallet-bal" id="profileClaimableTN">0 TN</span>
+      </div>
+      <div class="profile-claim-hint" data-i18n="win_plus_tn">WIN = +1 TN</div>
+
+      <!-- Stats Grid -->
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <span class="profile-stat-value" id="statGames">0</span>
+          <span class="profile-stat-label" data-i18n="games_played">GAMES PLAYED</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-value" id="statBestScore">0</span>
+          <span class="profile-stat-label" data-i18n="best_score">BEST SCORE</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-value" id="statKills">0</span>
+          <span class="profile-stat-label" data-i18n="total_kills">TOTAL KILLS</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-value" id="statAccuracy">0%</span>
+          <span class="profile-stat-label" data-i18n="best_accuracy">BEST ACCURACY</span>
+        </div>
+      </div>
+
+      <!-- Weekly Rank -->
+      <div class="profile-rank-wrap">
+        <div class="profile-rank-label" data-i18n="weekly_rank">WEEKLY RANK</div>
+        <div class="profile-rank-value" id="profileRank">—</div>
+      </div>
+
+      <!-- Connect Wallet (shown when not connected) -->
+      <button class="btn btn-wallet-connect profile-connect-btn" id="profileConnectBtn">
+        🔗 <span data-i18n="connect_wallet">CONNECT WALLET</span>
+      </button>
+
+      <!-- Claim Button -->
+      <button class="btn btn-gold profile-claim-btn" id="profileClaimBtn" data-i18n="claim_tn">
+        CLAIM TN
+      </button>
+
+      <!-- Language Toggle -->
+      <button class="btn lang-toggle-profile" id="langToggleBtn">
+        🌐 <span id="langToggleLabel">עברית / English</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ═══ CHARACTER SELECT MODAL ═══ -->
+  <div id="charBackdrop" class="profile-backdrop hidden">
+    <div class="char-modal">
+      <button class="profile-close" id="charCloseBtn">&times;</button>
+      <div class="char-title" data-i18n="select_character">SELECT CHARACTER</div>
+      <div class="char-grid" id="charGrid"></div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/firebase-auth.js"></script>
+  <script src="js/leaderboard.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Web3Modal — loads after app.js, overrides connect buttons -->
+  <script type="module" src="js/web3modal.js"></script>
+  <script>
+    // ── Init i18n ──────────────────────────────────────────
+    I18n.init();
+
+    // ── Splash animation (Brawl Stars style) ──────────────
+    const fill      = document.getElementById('splashFill');
+    const splash    = document.getElementById('splashScreen');
+    const menu      = document.getElementById('menuScreen');
+    const pctEl     = document.getElementById('splashPercent');
+    const statusEl  = document.getElementById('splashStatus');
+    const tipsEl    = document.getElementById('splashTips');
+
+    // Loading steps with target percentages
+    const loadSteps = [
+      { pct: 12,  en: 'Loading assets...',        he: '...טוען משאבים' },
+      { pct: 25,  en: 'Initializing engine...',    he: '...מאתחל מנוע' },
+      { pct: 40,  en: 'Loading characters...',     he: '...טוען דמויות' },
+      { pct: 55,  en: 'Connecting to server...',   he: '...מתחבר לשרת' },
+      { pct: 70,  en: 'Loading leaderboard...',    he: '...טוען טבלת מובילים' },
+      { pct: 82,  en: 'Preparing arena...',        he: '...מכין זירה' },
+      { pct: 93,  en: 'Almost ready...',           he: '...כמעט מוכן' },
+      { pct: 100, en: 'Ready!',                    he: '!מוכן' },
+    ];
+
+    // Tips shown at bottom
+    const tips = {
+      en: [
+        'TIP: Win matches to earn TN coins!',
+        'TIP: Use your Ultimate to turn the tide!',
+        'TIP: Each character has unique abilities',
+        'TIP: Climb the weekly leaderboard for glory!',
+        'TIP: Connect your wallet to claim TN rewards',
+      ],
+      he: [
+        '!TN טיפ: נצח במשחקים כדי להרוויח מטבעות',
+        '!טיפ: השתמש באולטימייט כדי להפוך את הקרב',
+        'טיפ: לכל דמות יש כוחות ייחודיים',
+        '!טיפ: טפס בטבלת המובילים השבועית',
+        'TN טיפ: חבר ארנק כדי לקבל פרסי',
+      ],
+    };
+
+    const lang = I18n.getLang();
+    const tipList = tips[lang] || tips.en;
+    tipsEl.textContent = tipList[Math.floor(Math.random() * tipList.length)];
+
+    let stepIdx = 0;
+    let currentPct = 0;
+
+    function updateSplash() {
+      if (stepIdx >= loadSteps.length) return;
+
+      const step = loadSteps[stepIdx];
+      const targetPct = step.pct;
+
+      // Increment towards target
+      const jump = Math.random() * 4 + 1.5;
+      currentPct = Math.min(currentPct + jump, targetPct);
+
+      const displayPct = Math.floor(currentPct);
+      fill.style.width = displayPct + '%';
+      pctEl.textContent = displayPct + '%';
+      statusEl.textContent = step[lang] || step.en;
+
+      if (currentPct >= targetPct) {
+        stepIdx++;
+        if (stepIdx >= loadSteps.length) {
+          // Done loading
+          pctEl.textContent = '100%';
+          fill.style.width = '100%';
+          setTimeout(() => {
+            splash.style.opacity = '0';
+            splash.style.transition = 'opacity 0.6s ease-out';
+            setTimeout(() => {
+              splash.classList.add('hidden');
+              menu.classList.remove('hidden');
+              initMenuBg();
+            }, 600);
+          }, 400);
+          return;
+        }
+      }
+
+      const delay = 60 + Math.random() * 80;
+      setTimeout(updateSplash, delay);
+    }
+
+    setTimeout(updateSplash, 300);
+
+    // ── Animated background (floating particles) ──────────
+    function initMenuBg() {
+      const canvas = document.getElementById('bgCanvas');
+      const ctx    = canvas.getContext('2d');
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const dots = Array.from({ length: 60 }, () => ({
+        x:    Math.random() * canvas.width,
+        y:    Math.random() * canvas.height,
+        r:    Math.random() * 2 + 0.5,
+        vx:   (Math.random() - 0.5) * 0.4,
+        vy:   (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.4 + 0.1,
+      }));
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const d of dots) {
+          d.x += d.vx; d.y += d.vy;
+          if (d.x < 0) d.x = canvas.width;
+          if (d.x > canvas.width)  d.x = 0;
+          if (d.y < 0) d.y = canvas.height;
+          if (d.y > canvas.height) d.y = 0;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0,255,204,${d.alpha})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+
+      // Firebase auth
+      FirebaseAuth.wireAuthUI();
+
+      // Leaderboard preview
+      Leaderboard.renderCompact('lbPreview', 5);
+
+      // Week timer
+      const timerEl = document.getElementById('weekTimer');
+      const tick = () => {
+        const { label } = Leaderboard.getTimeUntilReset();
+        timerEl.textContent = `${I18n.t('resets_in')} ${label}`;
+      };
+      tick();
+      setInterval(tick, 60000);
+    }
+  </script>
+
+</body>
+</html>

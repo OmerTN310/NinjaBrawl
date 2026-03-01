@@ -1,0 +1,582 @@
+/* ============================================================
+   NINJA BRAWL — Game Styles
+   ============================================================ */
+
+/* ── Canvas ── */
+#gameCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  image-rendering: pixelated;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════
+   HUD
+══════════════════════════════════════════ */
+#hud {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 5;
+  gap: 8px;
+}
+
+.hud-panel {
+  background: rgba(10, 10, 20, 0.82);
+  border: 1px solid rgba(0, 255, 204, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px;
+  backdrop-filter: blur(12px);
+}
+
+/* ── HP Bars ── */
+.hp-label {
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  color: var(--ninja);
+  margin-bottom: 5px;
+}
+
+.hp-bar {
+  width: 115px;
+  height: 8px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s ease, background 0.3s;
+}
+
+.hp-fill.player {
+  background: linear-gradient(90deg, #00aa66, #00ffcc);
+  box-shadow: 0 0 8px rgba(0,255,204,0.4);
+}
+
+.hp-fill.enemy {
+  background: linear-gradient(90deg, #aa0022, #ff3355);
+  box-shadow: 0 0 8px rgba(255,51,85,0.4);
+}
+
+/* HP color changes at low health */
+.hp-fill.player.low { background: linear-gradient(90deg, #ff6600, #ff9900); }
+.hp-fill.player.critical { background: linear-gradient(90deg, #cc0000, #ff0000); animation: blink 0.4s ease-in-out infinite; }
+
+/* ── Ammo Pips ── */
+.ammo-wrap  { margin-top: 6px; }
+.ammo-label { font-size: 0.45rem; letter-spacing: 2px; color: var(--ninja); margin-bottom: 3px; }
+
+.ammo-pips {
+  display: flex;
+  gap: 4px;
+}
+
+.ammo-pip {
+  width: 34px;
+  height: 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,255,204,0.3);
+  transition: background 0.15s, box-shadow 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.ammo-pip.full {
+  background: linear-gradient(90deg, #00aa66, #00ffcc);
+  box-shadow: 0 0 8px rgba(0,255,204,0.4);
+}
+
+.ammo-pip.empty {
+  background: rgba(255,255,255,0.05);
+  box-shadow: none;
+}
+
+.ammo-pip.charging {
+  background: rgba(255,255,255,0.05);
+}
+
+.ammo-pip.charging::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: calc(var(--charge) * 100%);
+  background: linear-gradient(90deg, #00aa66, #00ccaa);
+  border-radius: 2px;
+  transition: width 0.08s linear;
+}
+
+/* ── Ultimate Bar ── */
+.ult-wrap  { margin-top: 6px; }
+.ult-label { font-size: 0.45rem; letter-spacing: 2px; color: var(--orange); margin-bottom: 3px; }
+
+.ult-bar {
+  width: 115px;
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ult-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6600, #ffd700);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 6px rgba(255,153,0,0.5);
+}
+
+.ult-fill.ready {
+  animation: ultPulse 0.6s ease-in-out infinite;
+}
+
+@keyframes ultPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,215,0,0.5); }
+  50%       { box-shadow: 0 0 18px rgba(255,215,0,1); }
+}
+
+/* ── Center HUD ── */
+.hud-center { text-align: center; min-width: 80px; }
+
+.score-display {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 10px rgba(255,215,0,0.5);
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.42rem;
+  letter-spacing: 3px;
+  color: rgba(255,215,0,0.4);
+  margin-bottom: 4px;
+}
+
+.timer-display {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.timer-display.warning {
+  color: var(--enemy);
+  animation: blink 0.5s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255,51,85,0.6);
+}
+
+.kill-display {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 3px;
+  letter-spacing: 1px;
+}
+
+/* ── Right HUD ── */
+.hud-right { text-align: right; }
+.enemy-label { text-align: right; }
+
+.enemy-state {
+  font-size: 0.42rem;
+  letter-spacing: 2px;
+  color: rgba(255,51,85,0.5);
+  margin-top: 5px;
+  text-align: right;
+}
+
+/* ══════════════════════════════════════════
+   MOBILE CONTROLS
+══════════════════════════════════════════ */
+#controls {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 210px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 18px 22px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── Joystick ── */
+.joystick-zone {
+  width: 145px;
+  height: 145px;
+  pointer-events: all;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.joystick-base {
+  width: 145px;
+  height: 145px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(0,255,204,0.15);
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inner ring */
+.joystick-base::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,255,204,0.08);
+}
+
+.joystick-stick {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%,
+    rgba(0,255,204,0.45),
+    rgba(0,255,204,0.1)
+  );
+  border: 2px solid rgba(0,255,204,0.45);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%; top: 50%;
+  box-shadow: 0 0 16px rgba(0,255,204,0.2);
+  pointer-events: none;
+  transition: box-shadow 0.1s;
+}
+
+.joystick-label {
+  position: absolute;
+  bottom: -18px;
+  font-size: 0.45rem;
+  letter-spacing: 3px;
+  color: rgba(0,255,204,0.25);
+}
+
+/* ── Action Buttons ── */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: all;
+}
+
+.action-top { display: flex; justify-content: flex-end; }
+.action-row { display: flex; gap: 10px; align-items: center; }
+
+.action-btn {
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+  backdrop-filter: blur(12px);
+  pointer-events: all;
+  position: relative;
+  font-size: 1.5rem;
+  gap: 2px;
+}
+
+.action-btn:active {
+  transform: scale(0.86);
+}
+
+.btn-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.3rem;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  line-height: 1;
+}
+
+/* Shoot — biggest */
+.btn-shoot {
+  width: 76px;
+  height: 76px;
+  font-size: 1.8rem;
+  border-color: var(--ninja);
+  background: rgba(0,255,204,0.08);
+  box-shadow: 0 0 18px rgba(0,255,204,0.2), inset 0 0 10px rgba(0,255,204,0.05);
+  color: var(--ninja);
+}
+.btn-shoot:active {
+  background: rgba(0,255,204,0.25);
+  box-shadow: 0 0 28px rgba(0,255,204,0.5);
+}
+
+/* Ultimate */
+.btn-ult {
+  width: 60px;
+  height: 60px;
+  border-color: var(--gold);
+  background: rgba(255,215,0,0.08);
+  box-shadow: 0 0 14px rgba(255,215,0,0.2);
+  color: var(--gold);
+}
+.btn-ult:active {
+  background: rgba(255,215,0,0.25);
+  box-shadow: 0 0 24px rgba(255,215,0,0.5);
+}
+.btn-ult.ready {
+  animation: ultPulse 0.7s ease-in-out infinite;
+  border-color: #fff;
+}
+
+/* ── Aim Joystick ── */
+.aim-zone {
+  width: 130px;
+  height: 130px;
+  pointer-events: all;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.aim-base {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,51,85,0.25);
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aim-base::after {
+  content: '';
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,51,85,0.1);
+}
+
+.aim-stick {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%,
+    rgba(255,51,85,0.55),
+    rgba(255,51,85,0.15)
+  );
+  border: 2px solid rgba(255,51,85,0.55);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%; top: 50%;
+  box-shadow: 0 0 16px rgba(255,51,85,0.3);
+  pointer-events: none;
+  transition: box-shadow 0.1s;
+}
+
+.aim-label {
+  position: absolute;
+  bottom: -18px;
+  font-size: 0.45rem;
+  letter-spacing: 3px;
+  color: rgba(255,51,85,0.3);
+}
+
+/* Pause */
+.btn-pause {
+  width: 38px;
+  height: 38px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  box-shadow: none;
+}
+
+/* ══════════════════════════════════════════
+   COUNTDOWN
+══════════════════════════════════════════ */
+.countdown-number {
+  font-size: clamp(6rem, 25vw, 12rem);
+  font-weight: 900;
+  color: var(--ninja);
+  text-shadow: 0 0 40px rgba(0,255,204,0.8), 0 0 80px rgba(0,255,204,0.4);
+  animation: countPop 0.5s ease-out;
+}
+
+@keyframes countPop {
+  0%   { transform: scale(1.8); opacity: 0; }
+  60%  { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ══════════════════════════════════════════
+   GAME OVER
+══════════════════════════════════════════ */
+.go-emoji  { font-size: clamp(3rem, 12vw, 5rem); margin-bottom: 4px; animation: float 2s ease-in-out infinite; }
+
+.go-result {
+  font-size: clamp(1.6rem, 6vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+}
+.go-result.win  { color: var(--ninja); text-shadow: 0 0 30px rgba(0,255,204,0.8); }
+.go-result.lose { color: var(--enemy); text-shadow: 0 0 30px rgba(255,51,85,0.8); }
+.go-result.draw { color: var(--gold);  text-shadow: 0 0 30px rgba(255,215,0,0.8); }
+
+.go-score {
+  font-size: 1rem;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+}
+
+.go-stats {
+  background: rgba(10,10,20,0.7);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 14px 28px;
+  margin-bottom: 14px;
+  min-width: 250px;
+  text-align: center;
+}
+
+.go-stat {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+  margin: 5px 0;
+}
+
+.go-stat span { color: #fff; font-weight: 700; }
+
+.go-rank {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 8px;
+  padding: 10px 24px;
+  margin-bottom: 14px;
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-align: center;
+  animation: slideUp 0.4s ease-out;
+}
+
+.go-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ══════════════════════════════════════════
+   PAUSE
+══════════════════════════════════════════ */
+.overlay-icon  { font-size: 3rem; margin-bottom: 8px; }
+.overlay-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--ninja);
+  letter-spacing: 5px;
+  margin-bottom: 24px;
+  text-shadow: var(--glow);
+}
+
+/* ══════════════════════════════════════════
+   MATCHMAKING
+══════════════════════════════════════════ */
+.match-status {
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.match-dots {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.match-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ninja);
+  animation: matchDot 1.2s ease-in-out infinite;
+}
+
+.match-dots span:nth-child(2) { animation-delay: 0.2s; }
+.match-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes matchDot {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.3); }
+}
+
+/* ══════════════════════════════════════════
+   MOBILE LANDSCAPE RESPONSIVE
+══════════════════════════════════════════ */
+@media screen and (max-height: 500px) {
+  /* HUD — compact */
+  #hud { padding: 4px 8px; gap: 4px; }
+  .hud-panel { padding: 4px 8px; border-radius: 5px; }
+  .hp-label  { font-size: 0.4rem; margin-bottom: 2px; }
+  .hp-bar    { width: 80px; height: 5px; }
+  .ammo-wrap  { margin-top: 3px; }
+  .ammo-label { font-size: 0.35rem; }
+  .ammo-pip   { width: 22px; height: 5px; }
+  .ult-wrap  { margin-top: 3px; }
+  .ult-label { font-size: 0.35rem; }
+  .ult-bar   { width: 80px; height: 3px; }
+  .score-display { font-size: 1rem; }
+  .score-label   { font-size: 0.35rem; }
+  .timer-display { font-size: 0.8rem; }
+  .kill-display  { font-size: 0.45rem; margin-top: 1px; }
+  .enemy-state   { font-size: 0.35rem; }
+
+  /* Controls — smaller */
+  #controls { height: 140px; padding: 0 10px 10px; }
+  .joystick-zone, .joystick-base { width: 100px; height: 100px; }
+  .joystick-stick { width: 40px; height: 40px; }
+  .joystick-label { font-size: 0.35rem; bottom: -14px; }
+
+  .action-buttons { gap: 4px; }
+  .action-row     { gap: 6px; }
+  .aim-zone, .aim-base { width: 90px; height: 90px; }
+  .aim-stick   { width: 36px; height: 36px; }
+  .aim-label   { font-size: 0.35rem; bottom: -14px; }
+  .btn-ult    { width: 44px; height: 44px; font-size: 1.1rem; }
+  .btn-pause  { width: 30px; height: 30px; font-size: 0.7rem; }
+  .btn-label  { font-size: 0.22rem; }
+
+  /* Game Over — compact */
+  .go-emoji   { font-size: 2.5rem; }
+  .go-result  { font-size: 1.2rem; letter-spacing: 2px; }
+  .go-score   { font-size: 0.75rem; margin-bottom: 8px; }
+  .go-stats   { padding: 8px 16px; margin-bottom: 8px; min-width: 200px; }
+  .go-stat    { font-size: 0.5rem; margin: 3px 0; }
+  .go-rank    { padding: 6px 14px; font-size: 0.55rem; margin-bottom: 8px; }
+  .go-buttons .btn { padding: 8px 24px; font-size: 0.65rem; min-width: 160px; }
+
+  /* Countdown */
+  .countdown-number { font-size: clamp(3rem, 15vw, 6rem); }
+}

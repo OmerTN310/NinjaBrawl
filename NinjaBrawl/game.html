@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Ninja Brawl — Fight</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/game.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <!-- ═══ HUD ═══ -->
+  <div id="hud" class="hidden">
+
+    <!-- Player (left) -->
+    <div class="hud-left hud-panel">
+      <div class="hp-label">🥷 <span data-i18n="you_label">YOU</span></div>
+      <div class="hp-bar">
+        <div class="hp-fill player" id="playerHp" style="width:100%"></div>
+      </div>
+      <div class="ult-wrap">
+        <div class="ult-label">⚡ <span data-i18n="ultimate">ULTIMATE</span></div>
+        <div class="ult-bar">
+          <div class="ult-fill" id="ultBar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: Score + Timer -->
+    <div class="hud-center hud-panel">
+      <div class="score-display" id="scoreDisplay">0</div>
+      <div class="score-label" data-i18n="score_label">SCORE</div>
+      <div class="timer-display" id="timerDisplay">60</div>
+      <div class="kill-display" id="killDisplay">☠️ 0</div>
+    </div>
+
+    <!-- Enemy (right) -->
+    <div class="hud-right hud-panel">
+      <div class="hp-label enemy-label"><span data-i18n="enemy_label">ENEMY</span> 🤺</div>
+      <div class="hp-bar">
+        <div class="hp-fill enemy" id="enemyHp" style="width:100%"></div>
+      </div>
+      <div class="enemy-state" id="enemyState">CHASING</div>
+    </div>
+
+  </div>
+
+  <!-- ═══ GAME CANVAS ═══ -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- ═══ MOBILE CONTROLS ═══ -->
+  <div id="controls" class="hidden">
+
+    <!-- Left: Movement Joystick -->
+    <div class="joystick-zone" id="joystickZone">
+      <div class="joystick-base">
+        <div class="joystick-stick" id="joystickStick"></div>
+      </div>
+      <div class="joystick-label" data-i18n="move_label">MOVE</div>
+    </div>
+
+    <!-- Right: Actions + Aim Joystick -->
+    <div class="action-buttons">
+
+      <!-- Top: Pause + Ult -->
+      <div class="action-top">
+        <div class="action-btn btn-ult" id="ultBtn">
+          ⚡
+          <span class="btn-label" data-i18n="ult_label">ULT</span>
+        </div>
+        <button class="action-btn btn-pause" onclick="GameEngine.togglePause()">⏸</button>
+      </div>
+
+      <!-- Bottom: Aim Joystick (Brawl Stars style) -->
+      <div class="aim-zone" id="aimZone">
+        <div class="aim-base">
+          <div class="aim-stick" id="aimStick"></div>
+        </div>
+        <div class="aim-label" data-i18n="aim_label">AIM</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ MATCHMAKING ═══ -->
+  <div id="matchmakingScreen" class="overlay hidden">
+    <div class="overlay-icon">🔍</div>
+    <div class="overlay-title" data-i18n="matchmaking">MATCHMAKING</div>
+    <div class="match-status" id="matchStatus" data-i18n="connecting">Connecting to server...</div>
+    <div class="match-dots" id="matchDots">
+      <span></span><span></span><span></span>
+    </div>
+    <button class="btn btn-red" id="cancelMatchBtn">✕ <span data-i18n="cancel">CANCEL</span></button>
+  </div>
+
+  <!-- ═══ COUNTDOWN (3-2-1 GO!) ═══ -->
+  <div id="countdownScreen" class="overlay hidden">
+    <div class="countdown-number" id="countdownNumber">3</div>
+  </div>
+
+  <!-- ═══ PAUSE SCREEN ═══ -->
+  <div id="pauseScreen" class="overlay hidden">
+    <div class="overlay-icon">⏸</div>
+    <div class="overlay-title" data-i18n="paused">PAUSED</div>
+    <button class="btn" onclick="GameEngine.togglePause()">▶ <span data-i18n="resume">RESUME</span></button>
+    <button class="btn btn-red" onclick="window.location.href='index.html'">🏠 <span data-i18n="quit">QUIT</span></button>
+  </div>
+
+  <!-- ═══ GAME OVER SCREEN ═══ -->
+  <div id="gameOverScreen" class="overlay hidden">
+    <div id="goEmoji"  class="go-emoji"></div>
+    <div id="goResult" class="go-result"></div>
+    <div id="goScore"  class="go-score"></div>
+
+    <div id="goStats" class="go-stats"></div>
+
+    <div id="goRank" class="go-rank hidden">
+      <span id="goRankText"></span>
+    </div>
+
+    <div class="go-buttons">
+      <button class="btn btn-primary" id="playAgainBtn">🔄 <span data-i18n="play_again">PLAY AGAIN</span></button>
+      <button class="btn" onclick="window.location.href='leaderboard.html'">🏆 <span data-i18n="leaderboard">LEADERBOARD</span></button>
+      <button class="btn btn-red" onclick="window.location.href='index.html'">🏠 <span data-i18n="menu">MENU</span></button>
+    </div>
+  </div>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <!-- Order matters! -->
+  <script src="js/i18n.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/firebase-auth.js"></script>
+  <script src="js/leaderboard.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/game.js"></script>
+  <script>I18n.init();</script>
+
+</body>
+</html>
